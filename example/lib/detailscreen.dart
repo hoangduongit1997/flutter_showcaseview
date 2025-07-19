@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:showcaseview/showcaseview.dart';
 
+import 'done.dart';
+
 class Detail extends StatefulWidget {
   const Detail({Key? key}) : super(key: key);
 
@@ -28,6 +30,15 @@ class _DetailState extends State<Detail> {
       builder: (context) {
         myContext = context;
         return Scaffold(
+          floatingActionButton: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Test1()),
+              );
+            },
+            child: const Icon(Icons.navigate_next),
+          ),
           appBar: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,

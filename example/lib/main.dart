@@ -13,6 +13,8 @@ final GlobalKey _firstShowcaseWidget = GlobalKey();
 /// Global key for the last showcase widget
 final GlobalKey _lastShowcaseWidget = GlobalKey();
 
+final navigatorKey = GlobalKey<NavigatorState>();
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -24,6 +26,7 @@ class MyApp extends StatelessWidget {
         primaryColor: const Color(0xffEE5366),
       ),
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
       home: Scaffold(
         body: ShowCaseWidget(
           hideFloatingActionWidgetForShowcase: [_lastShowcaseWidget],
