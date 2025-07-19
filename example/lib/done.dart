@@ -98,8 +98,9 @@ class _Test3State extends State<Test3> {
           }
           WidgetsBinding.instance.addPostFrameCallback((_) {
             navigatorKey.currentState!.pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => const Test1()),
-                (Route route) => false);
+              MaterialPageRoute(builder: (context) => const Demo1()),
+              (Route route) => false,
+            );
           });
         },
         child: const Icon(Icons.navigate_next),
