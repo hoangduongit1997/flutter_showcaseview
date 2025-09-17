@@ -172,8 +172,8 @@ class Showcase extends StatefulWidget {
   /// ```
   const Showcase.withWidget({
     required GlobalKey key,
-    required this.height,
-    required this.width,
+    this.height,
+    this.width,
     required this.container,
     required this.child,
     this.floatingActionWidget,
@@ -202,8 +202,8 @@ class Showcase extends StatefulWidget {
     this.enableAutoScroll,
     this.toolTipMargin = 14,
     this.targetTooltipGap = 10,
-  })  : showArrow = false,
-        onToolTipClick = null,
+    this.showArrow = true,
+  })  : onToolTipClick = null,
         scaleAnimationDuration = const Duration(milliseconds: 300),
         scaleAnimationCurve = Curves.decelerate,
         scaleAnimationAlignment = null,
