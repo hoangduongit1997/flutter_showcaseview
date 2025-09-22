@@ -95,7 +95,7 @@ class TargetWidget extends StatelessWidget {
       top: offset.dy - targetPadding.top,
       left: offset.dx - targetPadding.left,
       child: disableDefaultChildGestures
-          ? IgnorePointer(child: targetWidgetContent)
+          ? AbsorbPointer(child: targetWidgetContent)
           : MouseRegion(
               cursor: SystemMouseCursors.click,
               child: targetWidgetContent,
