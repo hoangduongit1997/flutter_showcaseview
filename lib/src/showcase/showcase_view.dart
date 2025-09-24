@@ -24,6 +24,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../showcaseview.dart';
 import '../models/tooltip_action_button.dart';
 import '../models/tooltip_action_config.dart';
 import '../utils/constants.dart';
@@ -211,6 +212,10 @@ class ShowcaseView {
         <ShowcaseController>[];
   }
 
+  final _onShowcaseChanged = ValueNotifier<ShowcaseChangedState>(
+    const ShowcaseChangedState(index: 0, total: 0),
+  );
+
   /// Starts showcase with given widget ids after the optional delay.
   ///
   /// * [widgetIds] - List of GlobalKeys for widgets to showcase
@@ -350,6 +355,10 @@ class ShowcaseView {
     if (delay == Duration.zero) {
       _ids = widgetIds;
       _activeWidgetId = 0;
+      _onShowcaseChanged.value = ShowcaseChangedState(
+        total: widgetIds.length,
+        index: 0,
+      );
       _onStart();
       OverlayManager.instance.update(show: isShowcaseRunning, scope: scope);
     } else {
@@ -375,6 +384,12 @@ class ShowcaseView {
         if (!_mounted) return;
         // Update active widget ID before starting the next showcase
         _activeWidgetId = id;
+
+        // Update value onShowcaseChanged
+        onShowcaseChanged.value = ShowcaseChangedState(
+          total: _ids?.length ?? 0,
+          index: id,
+        );
 
         if (_activeWidgetId! >= _ids!.length) {
           _cleanupAfterSteps();
@@ -509,6 +524,9 @@ class ShowcaseView {
     _cancelTimer();
     OverlayManager.instance.update(show: isShowcaseRunning, scope: scope);
   }
+
+  ValueNotifier<ShowcaseChangedState> get onShowcaseChanged =>
+      _onShowcaseChanged;
 
   @override
   bool operator ==(Object other) {
