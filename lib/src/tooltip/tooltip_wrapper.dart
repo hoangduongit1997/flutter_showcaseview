@@ -21,7 +21,7 @@
  */
 part of 'tooltip.dart';
 
-class ToolTipWidget extends StatefulWidget {
+class ToolTipWrapper extends StatefulWidget {
   /// A tooltip widget that is displayed alongside a target widget during a
   /// showcase.
   ///
@@ -38,7 +38,7 @@ class ToolTipWidget extends StatefulWidget {
   /// The tooltip automatically handles positioning constraints to ensure it
   /// stays within screen boundaries and maintains proper spacing from the
   /// target widget.
-  const ToolTipWidget({
+  const ToolTipWrapper({
     required this.title,
     required this.description,
     required this.titleTextStyle,
@@ -110,10 +110,10 @@ class ToolTipWidget extends StatefulWidget {
   final double targetTooltipGap;
 
   @override
-  State<ToolTipWidget> createState() => _ToolTipWidgetState();
+  State<ToolTipWrapper> createState() => _ToolTipWrapperState();
 }
 
-class _ToolTipWidgetState extends State<ToolTipWidget>
+class _ToolTipWrapperState extends State<ToolTipWrapper>
     with TickerProviderStateMixin {
   late final AnimationController _movingAnimationController =
       AnimationController(
@@ -157,6 +157,12 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
 
   @override
   Widget build(BuildContext context) {
+    assert(
+      widget.container != null ||
+          (widget.title != null || widget.description != null),
+      'Provide either a custom container or a title/description for the '
+      'tooltip. Both cannot be null.',
+    );
     // Calculate the target position and size
     final box = widget.showcaseController.position?.renderBox;
     // This is a workaround to avoid the error when the widget is not mounted
@@ -189,50 +195,26 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
                   borderRadius: widget.tooltipBorderRadius ??
                       const BorderRadius.all(Radius.circular(8)),
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    if (widget.title case final title?)
-                      DefaultTooltipTextWidget(
-                        padding: widget.titlePadding ?? EdgeInsets.zero,
-                        text: title,
-                        textAlign: widget.titleTextAlign,
-                        alignment: widget.titleAlignment,
-                        textColor: widget.textColor,
-                        textDirection: widget.titleTextDirection,
-                        textStyle: widget.titleTextStyle ??
-                            Theme.of(context).textTheme.titleLarge?.merge(
-                                  TextStyle(color: widget.textColor),
-                                ),
-                      ),
-                    if (widget.description case final desc?)
-                      DefaultTooltipTextWidget(
-                        padding: widget.descriptionPadding ?? EdgeInsets.zero,
-                        text: desc,
-                        textAlign: widget.descriptionTextAlign,
-                        alignment: widget.descriptionAlignment,
-                        textColor: widget.textColor,
-                        textDirection: widget.descriptionTextDirection,
-                        textStyle: widget.descTextStyle ??
-                            Theme.of(context).textTheme.titleSmall?.merge(
-                                  TextStyle(color: widget.textColor),
-                                ),
-                      ),
-                    if (widget.tooltipActions.isNotEmpty &&
-                        widget.tooltipActionConfig.position.isInside)
-                      ActionWidget(
-                        tooltipActionConfig: widget.tooltipActionConfig,
-                        alignment: widget.tooltipActionConfig.alignment,
-                        crossAxisAlignment:
-                            widget.tooltipActionConfig.crossAxisAlignment,
-                        children: widget.tooltipActions,
-                      ),
-                  ],
+                child: ToolTipContent(
+                  title: widget.title,
+                  description: widget.description,
+                  titleTextAlign: widget.titleTextAlign,
+                  descriptionTextAlign: widget.descriptionTextAlign,
+                  titleAlignment: widget.titleAlignment,
+                  descriptionAlignment: widget.descriptionAlignment,
+                  textColor: widget.textColor,
+                  titleTextStyle: widget.titleTextStyle,
+                  descTextStyle: widget.descTextStyle,
+                  titlePadding: widget.titlePadding,
+                  descriptionPadding: widget.descriptionPadding,
+                  titleTextDirection: widget.titleTextDirection,
+                  descriptionTextDirection: widget.descriptionTextDirection,
+                  tooltipActionConfig: widget.tooltipActionConfig,
+                  tooltipActions: widget.tooltipActions,
                 ),
               ),
             ),
           );
-
     return Material(
       type: MaterialType.transparency,
       child: _AnimatedTooltipMultiLayout(
@@ -260,8 +242,14 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
             Offset.zero,
         targetTooltipGap: widget.targetTooltipGap,
         children: [
+          // We have to use UniqueKey here to avoid the issue with the
+          // _TooltipLayoutId being reused and causing layout issues
+          // See: documentation of [MultiChildRenderObjectWidget] for more
+          // details and to reproduce issue navigate to details screen in
+          // example app with route transition
           _TooltipLayoutId(
             id: TooltipLayoutSlot.tooltipBox,
+            key: UniqueKey(),
             child: defaultToolTipWidget,
           ),
           if (widget.tooltipActions.isNotEmpty &&
@@ -269,17 +257,16 @@ class _ToolTipWidgetState extends State<ToolTipWidget>
                   widget.container != null))
             _TooltipLayoutId(
               id: TooltipLayoutSlot.actionBox,
+              key: UniqueKey(),
               child: ActionWidget(
                 tooltipActionConfig: widget.tooltipActionConfig,
-                alignment: widget.tooltipActionConfig.alignment,
-                crossAxisAlignment:
-                    widget.tooltipActionConfig.crossAxisAlignment,
                 children: widget.tooltipActions,
               ),
             ),
           if (widget.showArrow)
             _TooltipLayoutId(
               id: TooltipLayoutSlot.arrow,
+              key: UniqueKey(),
               child: ShowcaseArrow(
                 strokeColor: widget.tooltipBackgroundColor,
               ),

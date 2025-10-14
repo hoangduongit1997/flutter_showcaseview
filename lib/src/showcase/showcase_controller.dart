@@ -19,9 +19,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
 import '../models/flutter_inherited_data.dart';
@@ -210,7 +212,7 @@ class ShowcaseController {
     bool shouldUpdateOverlay = true,
   }) {
     if (!showcaseView.enableShowcase || !showcaseView.isShowcaseRunning) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _runLater(() {
       if (!context.mounted ||
           !showcaseView.enableShowcase ||
           !showcaseView.isShowcaseRunning) {
@@ -307,7 +309,7 @@ class ShowcaseController {
               disableDefaultChildGestures: config.disableDefaultTargetGestures,
               targetPadding: config.targetPadding,
             ),
-            ToolTipWidget(
+            ToolTipWrapper(
               key: ValueKey(id),
               title: config.title,
               titleTextAlign: config.titleTextAlign,
@@ -398,8 +400,9 @@ class ShowcaseController {
         ? config.tooltipActions!
         : showcaseView.globalTooltipActions ?? [];
     final actionDataLength = actionData.length;
-    final lastAction = actionData.lastOrNull;
-    final actionGap = _getTooltipActionConfig().actionGap;
+    final actionConfig = _getTooltipActionConfig();
+    final actionGap = actionConfig.actionGap;
+    final areActionsInsideHorizontal = actionConfig.position.isInsideHorizontal;
 
     return [
       for (var i = 0; i < actionDataLength; i++)
@@ -407,9 +410,15 @@ class ShowcaseController {
             !actionData[i]
                 .hideActionWidgetForShowcase
                 .contains(config.showcaseKey))
+          // TODO: Switch to using spacing in [ActionWidget].
           Padding(
             padding: EdgeInsetsDirectional.only(
-              end: actionData[i] == lastAction ? 0 : actionGap,
+              end: i == (actionDataLength - 1) || areActionsInsideHorizontal
+                  ? 0
+                  : actionGap,
+              bottom: i == (actionDataLength - 1) || !areActionsInsideHorizontal
+                  ? 0
+                  : actionGap,
             ),
             child: TooltipActionButtonWidget(
               config: actionData[i],
@@ -435,6 +444,18 @@ class ShowcaseController {
   /// configuration over global when available.
   FloatingActionWidget? get _getFloatingActionWidget =>
       config.floatingActionWidget ?? globalFloatingActionWidget;
+
+  /// Schedules a callback to run after the current frame with guarantee.
+  void _runLater(VoidCallback process) {
+    final scheduler = SchedulerBinding.instance;
+    // Schedule a frame if none is scheduled to ensure the callback runs.
+    // This is useful particularly when [disableMovingAnimation] is true and so
+    // flutter doesn't another frame on web.
+    if (!scheduler.hasScheduledFrame) {
+      scheduler.scheduleFrame();
+    }
+    scheduler.addPostFrameCallback((_) => process());
+  }
 
   @override
   int get hashCode => Object.hash(id, key);

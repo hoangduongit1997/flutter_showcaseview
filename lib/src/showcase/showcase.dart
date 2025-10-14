@@ -60,9 +60,9 @@ class Showcase extends StatefulWidget {
   /// ```
   const Showcase({
     required GlobalKey key,
-    required this.description,
     required this.child,
     this.title,
+    this.description,
     this.titleTextAlign = TextAlign.start,
     this.descriptionTextAlign = TextAlign.start,
     this.titleAlignment = Alignment.center,
@@ -112,10 +112,13 @@ class Showcase extends StatefulWidget {
     this.enableAutoScroll,
     this.floatingActionWidget,
     this.targetTooltipGap = 10,
-  })  : height = null,
-        width = null,
-        container = null,
+  })  : container = null,
         showcaseKey = key,
+        assert(
+          title != null || description != null,
+          "title and description both can't be null. If you don't want to "
+          "provide those then use Showcase.withWidget() constructor",
+        ),
         assert(
           targetTooltipGap >= 0,
           'targetTooltipGap must be greater than 0',
@@ -152,8 +155,6 @@ class Showcase extends StatefulWidget {
   /// ```dart
   /// Showcase.withWidget(
   ///   key: _customKey,
-  ///   height: 80,
-  ///   width: 140,
   ///   container: Column(
   ///     children: [
   ///       Text(
@@ -225,6 +226,11 @@ class Showcase extends StatefulWidget {
         titleTextDirection = null,
         descriptionTextDirection = null,
         showcaseKey = key,
+        assert(
+          container != null,
+          'A container widget must be provided with this constructor. If '
+          'default showcase is desired then use Showcase() constructor',
+        ),
         assert(
           targetTooltipGap >= 0,
           'targetTooltipGap must be greater than 0',
@@ -335,12 +341,6 @@ class Showcase extends StatefulWidget {
   ///
   /// Default to `true`
   final bool showArrow;
-
-  /// Height of [container]
-  final double? height;
-
-  /// Width of [container]
-  final double? width;
 
   /// The duration of time the bouncing animation of tooltip should last.
   ///
