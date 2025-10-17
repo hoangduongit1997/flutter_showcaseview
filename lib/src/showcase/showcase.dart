@@ -537,7 +537,7 @@ class _ShowcaseState extends State<Showcase> {
 
   late ShowcaseScope _showCaseWidgetManager;
 
-  late final int _uniqueId = widget.hashCode;
+  late final int _uniqueId = UniqueKey().hashCode;
 
   @override
   void initState() {
