@@ -173,8 +173,6 @@ class Showcase extends StatefulWidget {
   /// ```
   const Showcase.withWidget({
     required GlobalKey key,
-    this.height,
-    this.width,
     required this.container,
     required this.child,
     this.floatingActionWidget,
