@@ -386,7 +386,7 @@ class ShowcaseView {
         _activeWidgetId = id;
 
         // Update value onShowcaseChanged
-        onShowcaseChanged.value = ShowcaseChangedState(
+        _onShowcaseChanged.value = ShowcaseChangedState(
           total: _ids?.length ?? 0,
           index: id,
         );
